@@ -68,53 +68,63 @@ public class FragmentBlue extends Fragment {
 
                 String number = etNumber1.getText().toString();
                 String filter = "address LIKE ?";
-
-                String[] filterArgs = {"%" + number + "%"};
-                // Fetch SMS Message from Built-in Content Provider
-                Cursor cursor = cr.query(uri, reqCols, null, null, null);
-                String smsBody = "";
-                if (cursor.moveToFirst()) {
-                    do {
-                        long dateInMillis = cursor.getLong(0);
-                        String date = (String) DateFormat
-                                .format("dd MMM yyyy h:mm:ss aa", dateInMillis);
-                        String address = cursor.getString(1);
-                        String body = cursor.getString(2);
-                        String type = cursor.getString(3);
-                        if (type.equalsIgnoreCase("1")) {
-                            type = "Inbox:";
-                        } else {
-                            type = "Sent:";
-                        }
-                        smsBody += type + " " + address + "\n at " + date
-                                + "\n\"" + body + "\"\n\n";
-                        emailText += body + "\n" ;
-                    } while (cursor.moveToNext());
+                if (!number.equals("") || !number.matches("")) {
+                    String[] filterArgs = {"%" + number + "%"};
+                    // Fetch SMS Message from Built-in Content Provider
+                    Cursor cursor = cr.query(uri, reqCols, null, null, null);
+                    String smsBody = "";
+                    if (cursor.moveToFirst()) {
+                        do {
+                            long dateInMillis = cursor.getLong(0);
+                            String date = (String) DateFormat
+                                    .format("dd MMM yyyy h:mm:ss aa", dateInMillis);
+                            String address = cursor.getString(1);
+                            String body = cursor.getString(2);
+                            String type = cursor.getString(3);
+                            if (type.equalsIgnoreCase("1")) {
+                                type = "Inbox:";
+                            } else {
+                                type = "Sent:";
+                            }
+                            smsBody += type + " " + address + "\n at " + date
+                                    + "\n\"" + body + "\"\n\n";
+                            emailText += body + "\n";
+                        } while (cursor.moveToNext());
+                    }
+                    tvResult1.setText(smsBody);
+                }else{
+                    tvResult1.setText("");
+                    Toast.makeText(getActivity(), "Empty input",Toast.LENGTH_SHORT).show();
                 }
-                tvResult1.setText(smsBody);
             }
         });
 
         btnEmail1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-// The action you want this intent to do;
-                // ACTION_SEND is used to indicate sending text
-                Intent email = new Intent(Intent.ACTION_SEND);
-                // Put essentials like email address, subject & body text
-                email.putExtra(Intent.EXTRA_EMAIL,
-                        new String[]{"jason_lim@rp.edu.sg"});
-                email.putExtra(Intent.EXTRA_SUBJECT,
-                        "Email texts");
-                email.putExtra(Intent.EXTRA_TEXT,
-                        emailText);
-                // This MIME type indicates email
-                email.setType("message/rfc822");
-                // createChooser shows user a list of app that can handle
-                // this MIME type, which is, email
-                startActivity(Intent.createChooser(email,
-                        "Choose an Email client :"));
+                String word = etNumber1.getText().toString();
 
+                if (!word.equals("") || !word.matches("")) {
+// The action you want this intent to do;
+                    // ACTION_SEND is used to indicate sending text
+                    Intent email = new Intent(Intent.ACTION_SEND);
+                    // Put essentials like email address, subject & body text
+                    email.putExtra(Intent.EXTRA_EMAIL,
+                            new String[]{"jason_lim@rp.edu.sg"});
+                    email.putExtra(Intent.EXTRA_SUBJECT,
+                            "Email texts");
+                    email.putExtra(Intent.EXTRA_TEXT,
+                            emailText);
+                    // This MIME type indicates email
+                    email.setType("message/rfc822");
+                    // createChooser shows user a list of app that can handle
+                    // this MIME type, which is, email
+                    startActivity(Intent.createChooser(email,
+                            "Choose an Email client :"));
+
+                } else {
+                    Toast.makeText(getActivity(), "Empty input",Toast.LENGTH_SHORT).show();
+                }
             }
         });
         // Inflate the layout for this fragment
